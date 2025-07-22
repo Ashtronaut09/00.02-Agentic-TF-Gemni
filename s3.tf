@@ -1,4 +1,33 @@
+provider "aws" {
+  region = "us-east-1"
+}
+
+resource "aws_resourcegroups_group" "main" {
+  name = "agentic-tf-gemini-rg"
+
+  resource_query {
+    query = <<JSON
+{
+  "ResourceTypeFilters": [
+    "AWS::AllSupported"
+  ],
+  "TagFilters": [
+    {
+      "Key": "project",
+      "Values": ["agentic-tf-gemini"]
+    }
+  ]
+}
+JSON
+  }
+}
 
 resource "aws_s3_bucket" "b" {
   bucket = "my-tf-test-bucket-12345"
+  acl    = "private"
+
+  tags = {
+    Name        = "My bucket"
+    project     = "agentic-tf-gemini"
+  }
 }
