@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Agent Helper - Use this in Terminal 2 (Claude Code Agent)
+Agent Helper - Use this in Terminal 2 (Code Agent)
 """
 
 import json
@@ -8,31 +8,60 @@ import time
 from datetime import datetime
 import re
 
-def auto_assign_role():
-    """Automatically assign to first available role"""
-    # Read current role assignments
+def auto_assign_role(role_to_assign=None):
+    """Automatically assign to a role that has pending tasks."""
+    # 1. Get pending tasks
+    try:
+        with open("agents/tasks.json", "r") as f:
+            tasks = json.load(f)
+        pending_tasks = tasks.get("pending_tasks", [])
+        if not pending_tasks:
+            print("⏳ No pending tasks. No role will be assigned.")
+            return None, None
+    except FileNotFoundError:
+        print("❌ tasks.json not found. No role will be assigned.")
+        return None, None
+
+    # 2. Get required roles from tasks that are pending
+    required_roles = {
+        task.get("data", {}).get("target_role")
+        for task in pending_tasks
+        if task.get("status") == "pending" and task.get("data", {}).get("target_role")
+    }
+    if not required_roles:
+        print("⏳ No tasks with specific target roles are pending. No role will be assigned.")
+        return None, None
+    
+    print(f"📋 Roles required by pending tasks: {list(required_roles)}")
+
+    # 3. Read current role assignments from instructions
     with open("agents/AGENT_INSTRUCTIONS.md", "r") as f:
         content = f.read()
-    
-    # Find role assignments section
-    roles = ['ARCHITECT', 'TERRAFORM_DEVELOPER', 'PLATFORM_ENGINEER', 'COMPLIANCE_ADMIN', 'FINOPS']
-    
-    for role in roles:
-        if f"{role}: AVAILABLE" in content:
-            # Generate terminal ID
-            terminal_id = f"claude-terminal-{int(time.time() % 10000)}"
-            
-            # Update role assignment
-            updated_content = content.replace(f"{role}: AVAILABLE", f"{role}: {terminal_id}")
+
+    # 4. Find an available role that is also a required role
+    if role_to_assign:
+        roles_to_check = [role_to_assign]
+    else:
+        roles_to_check = ['ARCHITECT', 'TERRAFORM_DEVELOPER', 'PLATFORM_ENGINEER', 'COMPLIANCE_ADMIN', 'FINOPS']
+
+    for role in roles_to_check:
+        # Check if the role is both required and available
+        if role in required_roles and f"{role}: AVAILABLE" in content:
+            # Assign this role
+            terminal_id = f"terminal-{int(time.time() % 10000)}"
+            updated_content = content.replace(f"{role}: AVAILABLE", f"{role}: {terminal_id}", 1)
             
             with open("agents/AGENT_INSTRUCTIONS.md", "w") as f:
                 f.write(updated_content)
             
-            print(f"✅ ROLE ASSIGNED: {role}")
+            print(f"✅ ROLE ASSIGNED (based on pending tasks): {role}")
             print(f"🆔 Terminal ID: {terminal_id}")
             return role, terminal_id
-    
-    print("❌ No available roles found")
+
+    if role_to_assign:
+        print(f"❌ Role {role_to_assign} is not available or not required for any pending tasks.")
+    else:
+        print("❌ No available roles match the roles required for pending tasks.")
     return None, None
 
 def get_pending_tasks():
@@ -41,13 +70,13 @@ def get_pending_tasks():
         tasks = json.load(f)
     return tasks["pending_tasks"]
 
-def initialize_agent():
+def initialize_agent(role_to_assign=None):
     """Complete agent initialization process"""
     print("🤖 INITIALIZING AGENT...")
     print()
     
     # Step 1: Self-assign role
-    role, terminal_id = auto_assign_role()
+    role, terminal_id = auto_assign_role(role_to_assign)
     
     if not role:
         print("❌ Agent initialization failed - no available roles")
@@ -213,9 +242,16 @@ def get_current_task():
         return None
 
 if __name__ == "__main__":
+    import sys
+    role_to_assign = None
+    if len(sys.argv) > 1:
+        role_to_assign = sys.argv[1]
+    
     print("🤖 Agent Helper - Terminal 2")
     print("Commands:")
     print("  check_for_tasks()")
     print("  start_task('task_id')")
     print("  complete_task('task_id', 'Generated terraform config', 'output_here')")
     print("  get_current_task()")
+
+    initialize_agent(role_to_assign)

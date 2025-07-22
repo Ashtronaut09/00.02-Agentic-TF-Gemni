@@ -1,6 +1,6 @@
 # Agent System Instructions
 
-This file contains instructions for Claude to simulate roles in the Agentic Terraform system with **dynamic role assignment**.
+This file contains instructions for AIs to simulate roles in the Agentic Terraform system with **dynamic role assignment**.
 
 ## 🚀 Quick Start
 
@@ -10,9 +10,8 @@ Initialize as orchestrator
 ```
 
 ### Terminal 2+ (Agent Personas):
-```python
-exec(open('agent_helper.py').read())
-initialize_agent()
+```bash
+python3 -c "import sys; sys.path.append('agents'); from agent_helper import initialize_agent; initialize_agent()"
 ```
 
 That's it! The system will automatically assign roles and import the necessary functions.
@@ -20,7 +19,7 @@ That's it! The system will automatically assign roles and import the necessary f
 ## Dynamic Role Assignment System
 
 ### For Orchestrator Terminal:
-When starting a new Claude Code session, simply say:
+When starting a new session, simply say:
 **"Initialize as orchestrator"** or **"Act as orchestrator"**
 
 This will automatically:
@@ -33,18 +32,20 @@ This will automatically:
 7. Only clear data when explicitly requested via `start_new_orchestration()`
 
 ### For Agent Terminals:
-When starting a new Claude Code session, simply run:
-```python
-exec(open('agent_helper.py').read())
-initialize_agent()
+When starting a new session, simply run:
+```bash
+python3 -c "import sys; sys.path.append('agents'); from agent_helper import initialize_agent; initialize_agent()"
 ```
 
 This will automatically:
-1. Read this file to see available roles
-2. Check the `ROLE_ASSIGNMENTS` section for unclaimed roles  
-3. Self-assign to the first available role by updating this file
-4. Show tasks assigned to your role
-5. Start acting according to that role's instructions
+1. Check for pending tasks in the system.
+2. Identify which roles are required to complete these tasks.
+3. Check this file for an available role that matches a required role.
+4. Self-assign to a needed and available role by updating this file.
+5. Show tasks assigned to your newly assigned role.
+6. Start acting according to that role's instructions.
+
+**Note:** An agent will only be assigned a role if there is a pending task that requires it.
 
 ---
 
@@ -70,14 +71,14 @@ FINOPS: AVAILABLE
 
 **Instructions for Agent Self-Assignment:**
 1. Find the first AVAILABLE role in the status above
-2. Replace AVAILABLE with your terminal identifier (e.g., "claude-terminal-2")
+2. Replace AVAILABLE with your terminal identifier (e.g., "gemini-terminal-2")
 3. Update this file with your assignment
 4. Follow that role's instructions below
 
 **Example Self-Assignment:**
 ```
 # Before:
-TERRAFORM_DEVELOPER: AVAILABLE
+TERRAFORM_DEVELOPER: gemini-terminal-2441
 
 # After claiming role:
 TERRAFORM_DEVELOPER: AVAILABLE
@@ -86,7 +87,7 @@ TERRAFORM_DEVELOPER: AVAILABLE
 ## ORCHESTRATOR Role
 
 ### Purpose
-The orchestrator sends tasks to agents and monitors their progress.
+The orchestrator's primary role is to manage the workflow by assigning tasks and roles to other agents, and to coordinate the handoffs between them. The orchestrator monitors progress but does not perform any coding or technical implementation tasks itself. Its function is strictly managerial.
 
 ### Available Commands
 ```python
@@ -246,16 +247,17 @@ def needs_architect(task_requirements):
 3. **Developer tests code**: Send `test_terraform` task to same `TERRAFORM_DEVELOPER`
 4. **Code review**: Send `code_review` task to a different `TERRAFORM_DEVELOPER` (if available)
 
-#### Phase 2: Platform Review
-5. **Platform review**: Send `platform_review` task to `PLATFORM_ENGINEER`
-6. **Developer implements platform suggestions**: Send `implement_changes` task to original `TERRAFORM_DEVELOPER`
+#### Phase 2: Platform Validation
+5. **Validate and Plan**: Send `plan_and_validate_terraform` task to `PLATFORM_ENGINEER`.
+6. **User Approval**: The orchestrator will present the plan to the user. **The workflow will pause here for user approval.**
+7. **Developer implements platform suggestions**: If the user requests changes, send `implement_changes` task to original `TERRAFORM_DEVELOPER`.
 
 #### Phase 3: Compliance Review
-7. **Security/compliance review**: Send `security_review` task to `COMPLIANCE_ADMIN`
-8. **Developer implements security fixes**: Send `implement_security_changes` task to original `TERRAFORM_DEVELOPER`
+8. **Security/compliance review**: Send `security_review` task to `COMPLIANCE_ADMIN`.
+9. **Developer implements security fixes**: Send `implement_security_changes` task to original `TERRAFORM_DEVELOPER`.
 
-#### Phase 4: Final Validation
-9. **Final validation**: Send `final_validation` task to `TERRAFORM_DEVELOPER`
+#### Phase 4: Final Apply
+10. **Final Apply**: After all approvals, the user can instruct the orchestrator to apply the changes.
 
 ### Workflow Implementation Example
 ```python
@@ -376,8 +378,8 @@ exec(open('orchestrator_helper.py').read())
 # 2. Resume from current state (preserves existing work)
 resume_orchestration()
 
-# 3. Claim orchestrator role in AGENT_INSTRUCTIONS.md
-update_role_assignment('ORCHESTRATOR', 'claude-terminal-X')
+# 3. Claim orchestrator role by programmatically editing this file (AGENT_INSTRUCTIONS.md)
+#    to set 'ORCHESTRATOR: AVAILABLE
 
 # 4. System automatically handles different orchestration stages:
 # - needs_initialization: First-time setup
@@ -578,13 +580,13 @@ update_status('working', 'idle', 'error')
 ```
 
 ### Primary Task Types
-- **platform_review** - Review terraform code for scalability and platform best practices
-- **debug_architecture_error** - Debug platform/architecture-specific errors
-- **design_architecture** - Create scalable infrastructure designs
-- **create_standards** - Define infrastructure patterns and standards
-- **optimize_performance** - Improve infrastructure efficiency and cost
-- **plan_scaling** - Design for growth and high availability
-- **setup_automation** - Create CI/CD and automation workflows
+- **plan_and_validate_terraform** - Validate the Terraform code and generate an execution plan.
+- **debug_architecture_error** - Debug platform/architecture-specific errors.
+- **design_architecture** - Create scalable infrastructure designs.
+- **create_standards** - Define infrastructure patterns and standards.
+- **optimize_performance** - Improve infrastructure efficiency and cost.
+- **plan_scaling** - Design for growth and high availability.
+- **setup_automation** - Create CI/CD and automation workflows.
 
 ### Error Debugging Expertise (Secondary Handler)
 Handle **architecture and platform errors**:
@@ -594,8 +596,22 @@ Handle **architecture and platform errors**:
 - **Environment conflicts**: Dev/staging/prod configuration issues
 - **Monitoring setup**: CloudWatch, alerting configuration errors
 
+### Platform Engineer Workflow
+1. **Self-Assign Role**: Update ROLE_ASSIGNMENTS section with your terminal ID.
+2. Use `get_pending_tasks()` to find tasks with `target_role: 'PLATFORM_ENGINEER'`.
+3. **Validate and Plan**: For a `plan_and_validate_terraform` task, run `terraform validate` and `terraform plan`.
+4. **Provide Plan Output**: Complete the task by providing the plan output to the orchestrator.
+5. **Await User Approval**: The orchestrator will then present the plan to the user for approval before any changes are applied.
+
+### User Approval Workflow
+After the `PLATFORM_ENGINEER` has successfully created a Terraform plan, the system will pause. The orchestrator will show you the plan and ask for your approval to proceed with committing the code and applying the changes.
+
+**This ensures you have the final say before any infrastructure is created, modified, or destroyed.**
+
 ### Platform Review Focus Areas
-When conducting **platform_review** tasks:
+When conducting **plan_and_validate_terraform** tasks:
+- **Validation**: Does the code pass `terraform validate`?
+- **Plan Analysis**: Does the `terraform plan` output match the expected changes?
 - **Scalability**: Can this infrastructure handle growth?
 - **Maintainability**: Is the code organized and reusable?
 - **Automation**: Are there opportunities for automation?
@@ -603,15 +619,6 @@ When conducting **platform_review** tasks:
 - **Monitoring**: Are monitoring and alerting included?
 - **Cost optimization**: Are resources right-sized?
 - **High availability**: Is there redundancy and failover?
-
-### Platform Engineer Workflow
-1. **Self-Assign Role**: Update ROLE_ASSIGNMENTS section with your terminal ID
-2. Use `get_pending_tasks()` to find tasks with `target_role: 'PLATFORM_ENGINEER'`
-3. Focus on enterprise-grade, scalable solutions
-4. Consider multi-region, multi-environment deployments
-5. Design with automation and self-service in mind
-6. Include monitoring, alerting, and operational tooling
-7. Create documentation and standards for teams
 
 ## COMPLIANCE ADMIN Role
 

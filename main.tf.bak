@@ -1,0 +1,21 @@
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 4.0"
+    }
+  }
+}
+
+provider "aws" {
+  region = "us-east-1"
+}
+
+resource "aws_s3_bucket" "text_file_storage" {
+  bucket = "gemini-text-file-storage-bucket-1753220179"
+
+  tags = {
+    Name        = "Text File Storage"
+    ManagedBy   = "Gemini"
+  }
+}

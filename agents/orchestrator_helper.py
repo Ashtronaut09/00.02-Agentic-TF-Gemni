@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Orchestrator Helper - Use this in Terminal 1 (Claude Code Orchestrator)
+Orchestrator Helper - Use this in Terminal 1 (Gemini Code Orchestrator)
 """
 
 import json
@@ -146,13 +146,12 @@ def start_new_orchestration():
         content = f.read()
     
     # Reset all roles to AVAILABLE
-    roles = ['ARCHITECT', 'TERRAFORM_DEVELOPER', 'PLATFORM_ENGINEER', 'COMPLIANCE_ADMIN', 'FINOPS']
+    roles = ['ORCHESTRATOR', 'ARCHITECT', 'TERRAFORM_DEVELOPER', 'PLATFORM_ENGINEER', 'COMPLIANCE_ADMIN', 'FINOPS']
+    
+    import re
     for role in roles:
-        # Find existing assignment and reset it
-        import re
-        pattern = f"{role}: claude-terminal-\\d+"
-        if re.search(pattern, content):
-            content = re.sub(pattern, f"{role}: AVAILABLE", content)
+        # This regex finds the role and whatever it is assigned to, and replaces it with AVAILABLE
+        content = re.sub(f"({role}: ).*", f"\\1AVAILABLE", content)
     
     with open("agents/AGENT_INSTRUCTIONS.md", "w") as f:
         f.write(content)
