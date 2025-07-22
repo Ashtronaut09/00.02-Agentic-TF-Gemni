@@ -33,6 +33,14 @@ Thumbs.db
 # Logs
 *.log
 
+# Python virtual environment
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
 # Environment variables
 .env
 .env.local
