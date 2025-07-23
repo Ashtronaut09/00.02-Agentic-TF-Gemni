@@ -1,6 +1,6 @@
 {
   "orchestrator_status": "resumed",
-  "agent_status": "working",
-  "last_update": "2025-07-22T16:18:24.335164",
+  "agent_status": "idle",
+  "last_update": "2025-07-22T16:19:21.428546",
   "current_task_id": null
 }

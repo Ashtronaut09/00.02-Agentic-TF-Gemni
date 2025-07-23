@@ -1,16 +1,5 @@
 {
-  "current_task": {
-    "id": "1753222438",
-    "type": "apply",
-    "description": "Apply the terraform configuration",
-    "data": {
-      "terraform_file": "s3.tf",
-      "target_role": "PLATFORM_ENGINEER"
-    },
-    "timestamp": "2025-07-22T15:13:58.357807",
-    "status": "in_progress",
-    "started_at": "2025-07-22T16:18:24.334829"
-  },
+  "current_task": null,
   "pending_tasks": [
     {
       "id": "1753222397",
@@ -70,6 +59,19 @@
       "status": "completed",
       "started_at": "2025-07-22T15:13:40.028858",
       "completed_at": "2025-07-22T15:13:53.252106"
+    },
+    {
+      "id": "1753222438",
+      "type": "apply",
+      "description": "Apply the terraform configuration",
+      "data": {
+        "terraform_file": "s3.tf",
+        "target_role": "PLATFORM_ENGINEER"
+      },
+      "timestamp": "2025-07-22T15:13:58.357807",
+      "status": "completed",
+      "started_at": "2025-07-22T16:18:24.334829",
+      "completed_at": "2025-07-22T16:19:21.428385"
     }
   ]
 }
