@@ -24,10 +24,14 @@ JSON
 
 resource "aws_s3_bucket" "b" {
   bucket = "my-tf-test-bucket-12345"
-  acl    = "private"
 
   tags = {
     Name        = "My bucket"
     project     = "agentic-tf-gemini"
   }
+}
+
+resource "aws_s3_bucket_acl" "b_acl" {
+  bucket = aws_s3_bucket.b.id
+  acl    = "private"
 }

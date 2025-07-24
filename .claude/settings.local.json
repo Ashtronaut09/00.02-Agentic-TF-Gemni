@@ -6,7 +6,10 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(rm:*)",
-      "Bash(git gc:*)"
+      "Bash(git gc:*)",
+      "Bash(python3:*)",
+      "Bash(terraform:*)",
+      "Bash(mv:*)"
     ],
     "deny": []
   }
