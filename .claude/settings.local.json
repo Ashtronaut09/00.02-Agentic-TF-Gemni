@@ -9,7 +9,12 @@
       "Bash(git gc:*)",
       "Bash(python3:*)",
       "Bash(terraform:*)",
-      "Bash(mv:*)"
+      "Bash(mv:*)",
+      "Bash(find:*)",
+      "Bash(ls:*)",
+      "Bash(source:*)",
+      "Bash(python:*)",
+      "Bash(grep:*)"
     ],
     "deny": []
   }
