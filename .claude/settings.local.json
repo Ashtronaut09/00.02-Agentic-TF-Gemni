@@ -14,7 +14,10 @@
       "Bash(ls:*)",
       "Bash(source:*)",
       "Bash(python:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "mcp__ide__executeCode",
+      "Bash(mkdir:*)",
+      "Bash(cp:*)"
     ],
     "deny": []
   }

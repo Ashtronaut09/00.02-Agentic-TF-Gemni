@@ -26,8 +26,8 @@ resource "aws_s3_bucket" "b" {
   bucket = "my-tf-test-bucket-12345"
 
   tags = {
-    Name        = "My bucket"
-    project     = "agentic-tf-gemini"
+    Name    = "My bucket"
+    project = "agentic-tf-gemini"
   }
 }
 

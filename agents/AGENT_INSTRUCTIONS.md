@@ -53,10 +53,10 @@ This will automatically:
 
 **Current Role Status:**
 ```
-ORCHESTRATOR: AVAILABLE
-ARCHITECT: terminal-1478
-TERRAFORM_DEVELOPER: terminal-1536
-PLATFORM_ENGINEER: terminal-1644
+ORCHESTRATOR: claude-orchestrator
+ARCHITECT: terminal-7422
+TERRAFORM_DEVELOPER: terminal-7701
+PLATFORM_ENGINEER: claude-platform-engineer
 COMPLIANCE_ADMIN: AVAILABLE
 FINOPS: AVAILABLE
 ```
@@ -78,7 +78,7 @@ FINOPS: AVAILABLE
 **Example Self-Assignment:**
 ```
 # Before:
-TERRAFORM_DEVELOPER: AVAILABLE
+TERRAFORM_DEVELOPER: terminal-7701
 
 # After claiming role:
 TERRAFORM_DEVELOPER: AVAILABLE
