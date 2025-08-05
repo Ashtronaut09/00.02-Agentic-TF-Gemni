@@ -17,7 +17,8 @@
       "Bash(grep:*)",
       "mcp__ide__executeCode",
       "Bash(mkdir:*)",
-      "Bash(cp:*)"
+      "Bash(cp:*)",
+      "Bash(git pull:*)"
     ],
     "deny": []
   }
