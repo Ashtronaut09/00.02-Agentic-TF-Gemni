@@ -2,6 +2,8 @@
 
 A multi-agent system for collaborative Terraform infrastructure development with specialized AI agents for architecture design, development, platform engineering, security compliance, and cost optimization. It was originally for Gemini but I couldn't get Gemini CLI to work consistently so I switched back to Claude. Run it with other LLMs are your own risk!
 
+👩🏻‍🏫 Please note that you can use natural language to interfacce with the agents so don't worry if you don't remember commands!
+
 ## 🏗️ System Overview
 
 This framework uses multiple AI agents working together to design, develop, test, and deploy infrastructure code through a coordinated workflow. Each agent specializes in a specific domain:
