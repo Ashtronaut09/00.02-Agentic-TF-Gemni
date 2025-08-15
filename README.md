@@ -1,8 +1,6 @@
 # Agentic Terraform Framework
 
-A multi-agent system for collaborative Terraform infrastructure development with specialized AI agents for architecture design, development, platform engineering, security compliance, and cost optimization. It was originally for Gemini but I couldn't get Gemini CLI to work consistently so I switched back to Claude. Run it with other LLMs are your own risk!
-
-👩🏻‍🏫 Please note that you can use natural language to interfacce with the agents so don't worry if you don't remember commands!
+A multi-agent system for collaborative Terraform infrastructure development with specialized AI agents for architecture design, development, platform engineering, security compliance, and cost optimization.
 
 ## 🏗️ System Overview
 
@@ -18,7 +16,7 @@ This framework uses multiple AI agents working together to design, develop, test
 ## 📋 Prerequisites
 
 ### Required Software
-- **Claude Code CLI** - AI-powered coding assistant with terminal access
+- **An AI-powered coding assistant with terminal access** (e.g., Claude, Gemini, etc.)
 - **Python 3.7+** - For agent helper scripts and MCP server
 - **Terraform** - Infrastructure as code tool (for actual deployment)
 - **Git** - Version control (recommended)
@@ -37,36 +35,33 @@ pip install json datetime time re
 
 ### Step 1: Initialize the Orchestrator (Terminal 1)
 
-Open Claude Code in your first terminal and navigate to the project directory:
+Open your first terminal and navigate to the project directory:
 
 ```bash
 cd "/path/to/Agentic-TF-Framework"
 ```
 
-Initialize the orchestrator by saying:
-```
-Initialize as orchestrator
+Initialize the orchestrator by running:
+```bash
+python3 agents/orchestrator.py
 ```
 
 This will:
 - Resume from current state (preserves existing work)
-- Import orchestrator helper functions
-- Claim the ORCHESTRATOR role
 - Show current progress and available commands
 
 ### Step 2: Initialize Agents (Terminal 2+)
 
-For each additional agent you want to run, open a new Claude Code terminal and run:
+For each additional agent you want to run, open a new terminal and run:
 
 ```bash
-python3 -c "import sys; sys.path.append('agents'); from agent_helper import initialize_agent; initialize_agent()"
+python3 agents/agent.py
 ```
 
 This will:
 - Check for pending tasks
 - Auto-assign to an available role that has pending work
 - Show role-specific instructions and available tasks
-- Import agent helper functions
 
 ## 🔄 Standard Workflow
 
@@ -178,32 +173,25 @@ agents/
 ## 🌟 Example Usage Session
 
 ### 1. Start Orchestrator
+```bash
+# In Terminal 1
+python3 agents/orchestrator.py
 ```
-Terminal 1 (Claude Code):
-> Initialize as orchestrator
+This will initialize the orchestrator and show the current status.
 
-🎯 READY FOR TASKS
-System is ready to receive new tasks.
-```
-
-### 2. Request Architecture
-```
-Terminal 1:
-> Please design a video streaming platform for 10TB storage and thousands of users
-
-✅ Task sent: Design video streaming platform infrastructure  
-📋 Task ID: 1234567890
+### 2. Send a Task
+The user can then send a task to the orchestrator. For example, by calling the `send_task` function in the orchestrator's terminal:
+```python
+# In Terminal 1 (Orchestrator)
+send_task('architecture_planning', 'Design a video streaming platform', {'target_role': 'ARCHITECT'})
 ```
 
-### 3. Initialize Architect Agent
+### 3. Initialize an Agent
+```bash
+# In Terminal 2
+python3 agents/agent.py
 ```
-Terminal 2 (Claude Code):
-> python3 -c "import sys; sys.path.append('agents'); from agent_helper import initialize_agent; initialize_agent()"
-
-✅ ROLE ASSIGNED: ARCHITECT
-🎯 MY TASKS (ARCHITECT):
-  ✅ Design video streaming platform infrastructure (ID: 1234567890)
-```
+The agent will automatically be assigned the `ARCHITECT` role and will see the pending task.
 
 ### 4. Continue Workflow
 The system automatically progresses through development, testing, platform review, security review, and deployment phases as agents complete their tasks.
@@ -289,19 +277,18 @@ The system tracks different orchestration stages:
 ### Common Issues
 
 **Agent won't initialize:**
-- Check that tasks.json, status.json, and results.json exist
-- Verify Python path includes 'agents' directory
-- Ensure no pending tasks exist for unavailable roles
+- Check that tasks.json, status.json, and results.json exist. If not, run the orchestrator first to create them.
+- Verify that your Python path includes the 'agents' directory.
+- Ensure there are pending tasks that require a role that is currently available.
 
 **Tasks not being claimed:**  
-- Verify agent has correct role assignment in AGENT_INSTRUCTIONS.md
-- Check that target_role in task data matches available agents
-- Confirm agent is running initialize_agent() correctly
+- Verify that the `target_role` in the task data matches an available role in `status.json`.
+- Confirm that the agent is being started with `python3 agents/agent.py`.
 
 **Orchestrator not responding:**
-- Ensure orchestrator is initialized: "Initialize as orchestrator"  
-- Check orchestrator status with get_status()
-- Verify file permissions for JSON files
+- Ensure the orchestrator is running in a separate terminal.
+- Check the orchestrator status with `get_status()` in the orchestrator's terminal.
+- Verify file permissions for the JSON files in the `agents` directory.
 
 **State management issues:**
 - Use start_new_orchestration() to completely reset

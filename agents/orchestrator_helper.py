@@ -128,7 +128,15 @@ def initialize_clean_slate():
             "orchestrator_status": "initialized",
             "agent_status": "idle",
             "last_update": datetime.now().isoformat(),
-            "current_task_id": None
+            "current_task_id": None,
+            "roles": {
+                "ORCHESTRATOR": "AVAILABLE",
+                "ARCHITECT": "AVAILABLE",
+                "TERRAFORM_DEVELOPER": "AVAILABLE",
+                "PLATFORM_ENGINEER": "AVAILABLE",
+                "COMPLIANCE_ADMIN": "AVAILABLE",
+                "FINOPS": "AVAILABLE"
+            }
         }, f, indent=2)
     
     print("✅ Clean slate initialized")
@@ -141,22 +149,7 @@ def start_new_orchestration():
     # Initialize clean slate
     initialize_clean_slate()
     
-    # Reset role assignments to AVAILABLE
-    with open("agents/AGENT_INSTRUCTIONS.md", "r") as f:
-        content = f.read()
-    
-    # Reset all roles to AVAILABLE
-    roles = ['ORCHESTRATOR', 'ARCHITECT', 'TERRAFORM_DEVELOPER', 'PLATFORM_ENGINEER', 'COMPLIANCE_ADMIN', 'FINOPS']
-    
-    import re
-    for role in roles:
-        # This regex finds the role and whatever it is assigned to, and replaces it with AVAILABLE
-        content = re.sub(f"({role}: ).*", f"\\1AVAILABLE", content)
-    
-    with open("agents/AGENT_INSTRUCTIONS.md", "w") as f:
-        f.write(content)
-    
-    print("✅ New orchestration started - all roles reset to AVAILABLE")
+    print("✅ New orchestration started")
     print("🎯 System ready for new project")
 
 def update_orchestrator_status(status_value):
