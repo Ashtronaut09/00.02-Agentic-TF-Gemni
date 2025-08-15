@@ -34,9 +34,11 @@ def auto_assign_role(role_to_assign=None):
     
     print(f"📋 Roles required by pending tasks: {list(required_roles)}")
 
-    # 3. Read current role assignments from instructions
-    with open("agents/AGENT_INSTRUCTIONS.md", "r") as f:
-        content = f.read()
+    # 3. Read current role assignments from status
+    with open("agents/status.json", "r") as f:
+        status = json.load(f)
+
+    available_roles = status.get("roles", {})
 
     # 4. Find an available role that is also a required role
     if role_to_assign:
@@ -46,13 +48,13 @@ def auto_assign_role(role_to_assign=None):
 
     for role in roles_to_check:
         # Check if the role is both required and available
-        if role in required_roles and f"{role}: AVAILABLE" in content:
+        if role in required_roles and available_roles.get(role) == "AVAILABLE":
             # Assign this role
             terminal_id = f"terminal-{int(time.time() % 10000)}"
-            updated_content = content.replace(f"{role}: AVAILABLE", f"{role}: {terminal_id}", 1)
+            status["roles"][role] = terminal_id
             
-            with open("agents/AGENT_INSTRUCTIONS.md", "w") as f:
-                f.write(updated_content)
+            with open("agents/status.json", "w") as f:
+                json.dump(status, f, indent=2)
             
             print(f"✅ ROLE ASSIGNED (based on pending tasks): {role}")
             print(f"🆔 Terminal ID: {terminal_id}")

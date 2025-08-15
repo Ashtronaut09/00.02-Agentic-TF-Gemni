@@ -5,84 +5,17 @@ This file contains instructions for AIs to simulate roles in the Agentic Terrafo
 ## 🚀 Quick Start
 
 ### Terminal 1 (Orchestrator):
-```
-Initialize as orchestrator
+```bash
+python3 agents/orchestrator.py
 ```
 
 ### Terminal 2+ (Agent Personas):
 ```bash
-python3 -c "import sys; sys.path.append('agents'); from agent_helper import initialize_agent; initialize_agent()"
+python3 agents/agent.py
 ```
 
-That's it! The system will automatically assign roles and import the necessary functions.
+That's it! The system will automatically assign roles based on pending tasks.
 
-## Dynamic Role Assignment System
-
-### For Orchestrator Terminal:
-When starting a new session, simply say:
-**"Initialize as orchestrator"** or **"Act as orchestrator"**
-
-This will automatically:
-1. **Resume from current state** (preserves existing work)
-2. Analyze current orchestration stage and provide guidance
-3. Import the orchestrator helper functions
-4. Claim the orchestrator role
-5. Show current progress and next steps
-6. Handle different orchestration stages intelligently
-7. Only clear data when explicitly requested via `start_new_orchestration()`
-
-### For Agent Terminals:
-When starting a new session, simply run:
-```bash
-python3 -c "import sys; sys.path.append('agents'); from agent_helper import initialize_agent; initialize_agent()"
-```
-
-This will automatically:
-1. Check for pending tasks in the system.
-2. Identify which roles are required to complete these tasks.
-3. Check this file for an available role that matches a required role.
-4. Self-assign to a needed and available role by updating this file.
-5. Show tasks assigned to your newly assigned role.
-6. Start acting according to that role's instructions.
-
-**Note:** An agent will only be assigned a role if there is a pending task that requires it.
-
----
-
-## ROLE_ASSIGNMENTS
-
-**Current Role Status:**
-```
-ORCHESTRATOR: AVAILABLE
-ARCHITECT: AVAILABLE
-TERRAFORM_DEVELOPER: AVAILABLE
-PLATFORM_ENGINEER: AVAILABLE
-COMPLIANCE_ADMIN: AVAILABLE
-FINOPS: AVAILABLE
-```
-
-**Required Roles for Current Project:**
-- [ ] ORCHESTRATOR (coordinates all tasks)
-- [ ] ARCHITECT (designs system architecture and planning)
-- [ ] TERRAFORM_DEVELOPER (writes infrastructure code)
-- [ ] PLATFORM_ENGINEER (designs scalable architecture)
-- [ ] COMPLIANCE_ADMIN (ensures security compliance)
-- [ ] FINOPS (cost optimization and financial governance)
-
-**Instructions for Agent Self-Assignment:**
-1. Find the first AVAILABLE role in the status above
-2. Replace AVAILABLE with your terminal identifier (e.g., "gemini-terminal-2")
-3. Update this file with your assignment
-4. Follow that role's instructions below
-
-**Example Self-Assignment:**
-```
-# Before:
-TERRAFORM_DEVELOPER: terminal-7701
-
-# After claiming role:
-TERRAFORM_DEVELOPER: AVAILABLE
-```
 
 ## ORCHESTRATOR Role
 
@@ -125,11 +58,10 @@ start_new_orchestration()
    - Data: `{'config_path': './main.tf'}`
 
 ### Orchestrator Workflow
-1. **Determine Required Roles**: Analyze the project and update `ROLE_ASSIGNMENTS` section
-2. **Wait for Agent Assignment**: Monitor the instructions file for agents to self-assign
-3. **Send Role-Specific Tasks**: Use `send_task()` with role specifications
-4. **Monitor Progress**: Use `get_status()` and `check_results()`
-5. **Coordinate Handoffs**: Send tasks between specialized roles as needed
+1. **Determine Required Roles**: Analyze the project and decide which roles are needed.
+2. **Send Role-Specific Tasks**: Use `send_task()` with `target_role` in the data payload to assign tasks to specific roles.
+3. **Monitor Progress**: Use `get_status()` and `check_results()` to see which agents have picked up tasks and what their progress is.
+4. **Coordinate Handoffs**: Send tasks between specialized roles as needed.
 
 ### When to Include ARCHITECT Role
 
@@ -368,26 +300,6 @@ send_task('debug_security_error', 'Fix security policy violation', {
 })
 ```
 
-### Orchestrator Initialization Steps
-```python
-# When "Initialize as orchestrator" is called, do these steps:
-
-# 1. Import orchestrator functions
-exec(open('orchestrator_helper.py').read())
-
-# 2. Resume from current state (preserves existing work)
-resume_orchestration()
-
-# 3. Claim orchestrator role by programmatically editing this file (AGENT_INSTRUCTIONS.md)
-#    to set 'ORCHESTRATOR: AVAILABLE
-
-# 4. System automatically handles different orchestration stages:
-# - needs_initialization: First-time setup
-# - orchestration_complete: All work finished
-# - work_in_progress: Tasks being worked on
-# - tasks_pending: Tasks waiting for agents
-# - ready_for_tasks: System ready for new work
-```
 
 ### Orchestration Stages
 The system now tracks orchestration stages and resumes intelligently:
@@ -465,25 +377,12 @@ When conducting **architecture_planning** tasks:
 - **Performance planning**: Plan for scalability and performance requirements
 
 ### Architect Workflow
-1. **Self-Assign Role**: Update ROLE_ASSIGNMENTS section with your terminal ID
-2. Use `get_pending_tasks()` to find tasks with `target_role: 'ARCHITECT'`
-3. **Analyze requirements** and create architectural designs
-4. **Create technical blueprints** and documentation
-5. **Design solution approach** before implementation begins
-6. **Validate designs** against requirements and constraints
-7. **Provide implementation guidance** to development teams
-
-### Agent Self-Assignment Code
-```python
-# First, update the AGENT_INSTRUCTIONS.md file to claim your role
-# Replace AVAILABLE with your terminal identifier in ROLE_ASSIGNMENTS
-
-# Then start normal workflow
-exec(open('agent_helper.py').read())
-tasks = get_pending_tasks()
-# Filter for tasks assigned to ARCHITECT
-my_tasks = [t for t in tasks if t.get('data', {}).get('target_role') == 'ARCHITECT']
-```
+1. Use `get_pending_tasks()` to find tasks with `target_role: 'ARCHITECT'`
+2. **Analyze requirements** and create architectural designs
+3. **Create technical blueprints** and documentation
+4. **Design solution approach** before implementation begins
+5. **Validate designs** against requirements and constraints
+6. **Provide implementation guidance** to development teams
 
 ## TERRAFORM DEVELOPER Role
 
@@ -536,24 +435,11 @@ As the **primary error handler**, focus on:
 - **General terraform errors**: Plan/apply failures, validation issues
 
 ### Terraform Developer Workflow
-1. **Self-Assign Role**: Update ROLE_ASSIGNMENTS section with your terminal ID
-2. Use `get_pending_tasks()` to find tasks with `target_role: 'TERRAFORM_DEVELOPER'`
-3. Use `start_task(task_id)` to claim the task
-4. **Write actual Terraform code** using best practices
-5. Test and validate the configuration
-6. Use `complete_task()` to deliver working code
-
-### Agent Self-Assignment Code
-```python
-# First, update the AGENT_INSTRUCTIONS.md file to claim your role
-# Replace AVAILABLE with your terminal identifier in ROLE_ASSIGNMENTS
-
-# Then start normal workflow
-exec(open('agent_helper.py').read())
-tasks = get_pending_tasks()
-# Filter for tasks assigned to TERRAFORM_DEVELOPER
-my_tasks = [t for t in tasks if t.get('data', {}).get('target_role') == 'TERRAFORM_DEVELOPER']
-```
+1. Use `get_pending_tasks()` to find tasks with `target_role: 'TERRAFORM_DEVELOPER'`
+2. Use `start_task(task_id)` to claim the task
+3. **Write actual Terraform code** using best practices
+4. Test and validate the configuration
+5. Use `complete_task()` to deliver working code
 
 ## PLATFORM ENGINEER Role
 
@@ -597,11 +483,10 @@ Handle **architecture and platform errors**:
 - **Monitoring setup**: CloudWatch, alerting configuration errors
 
 ### Platform Engineer Workflow
-1. **Self-Assign Role**: Update ROLE_ASSIGNMENTS section with your terminal ID.
-2. Use `get_pending_tasks()` to find tasks with `target_role: 'PLATFORM_ENGINEER'`.
-3. **Validate and Plan**: For a `plan_and_validate_terraform` task, run `terraform validate` and `terraform plan`.
-4. **Provide Plan Output**: Complete the task by providing the plan output to the orchestrator.
-5. **Await User Approval**: The orchestrator will then present the plan to the user for approval before any changes are applied.
+1. Use `get_pending_tasks()` to find tasks with `target_role: 'PLATFORM_ENGINEER'`.
+2. **Validate and Plan**: For a `plan_and_validate_terraform` task, run `terraform validate` and `terraform plan`.
+3. **Provide Plan Output**: Complete the task by providing the plan output to the orchestrator.
+4. **Await User Approval**: The orchestrator will then present the plan to the user for approval before any changes are applied.
 
 ### User Approval Workflow
 After the `PLATFORM_ENGINEER` has successfully created a Terraform plan, the system will pause. The orchestrator will show you the plan and ask for your approval to proceed with committing the code and applying the changes.
@@ -670,18 +555,17 @@ When conducting **security_review** tasks:
 6. **Create actionable feedback** with code examples
 
 ### Compliance Admin Workflow
-1. **Self-Assign Role**: Update ROLE_ASSIGNMENTS section with your terminal ID
-2. Use `get_pending_tasks()` to find tasks with `target_role: 'COMPLIANCE_ADMIN'`
-3. Review all infrastructure code for security compliance
-4. Check for common security misconfigurations:
+1. Use `get_pending_tasks()` to find tasks with `target_role: 'COMPLIANCE_ADMIN'`
+2. Review all infrastructure code for security compliance
+3. Check for common security misconfigurations:
    - Open security groups (0.0.0.0/0)
    - Unencrypted resources
    - Overly permissive IAM policies
    - Missing logging and monitoring
    - Insecure network configurations
-5. Validate against compliance requirements
-6. Provide detailed security recommendations
-7. Ensure security controls are properly implemented
+4. Validate against compliance requirements
+5. Provide detailed security recommendations
+6. Ensure security controls are properly implemented
 
 ### Security Review Checklist
 - **Network Security**: Security groups, NACLs, private subnets
@@ -758,18 +642,17 @@ When conducting **cost_review** tasks:
 7. **Prioritize optimizations** by potential savings impact
 
 ### FinOps Workflow
-1. **Self-Assign Role**: Update ROLE_ASSIGNMENTS section with your terminal ID
-2. Use `get_pending_tasks()` to find tasks with `target_role: 'FINOPS'`
-3. Analyze infrastructure for cost optimization opportunities
-4. Review resource configurations for efficiency:
+1. Use `get_pending_tasks()` to find tasks with `target_role: 'FINOPS'`
+2. Analyze infrastructure for cost optimization opportunities
+3. Review resource configurations for efficiency:
    - Instance types and sizing
    - Storage classes and lifecycle policies
    - Network transfer optimization
    - Reserved capacity opportunities
    - Auto-scaling configurations
-5. Calculate cost estimates and provide budget forecasts
-6. Implement cost monitoring and alerting
-7. Create cost allocation tags and governance policies
+4. Calculate cost estimates and provide budget forecasts
+5. Implement cost monitoring and alerting
+6. Create cost allocation tags and governance policies
 
 ### Cost Review Checklist
 - **Compute**: Right-sized instances, spot usage, reserved capacity
@@ -778,18 +661,6 @@ When conducting **cost_review** tasks:
 - **Monitoring**: Cost-effective logging levels, metric retention policies
 - **Tagging**: Complete cost allocation tags, proper resource categorization
 - **Governance**: Budget alerts, cost policies, approval workflows
-
-### Agent Self-Assignment Code
-```python
-# First, update the AGENT_INSTRUCTIONS.md file to claim your role
-# Replace AVAILABLE with your terminal identifier in ROLE_ASSIGNMENTS
-
-# Then start normal workflow
-exec(open('agent_helper.py').read())
-tasks = get_pending_tasks()
-# Filter for tasks assigned to FINOPS
-my_tasks = [t for t in tasks if t.get('data', {}).get('target_role') == 'FINOPS']
-```
 
 ### FinOps Cost Optimization Principles
 - **Visibility**: Implement comprehensive cost monitoring and reporting
